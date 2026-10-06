@@ -1,0 +1,27 @@
+BACKUPS AND SCOPE
+
+Host VMnet1 before each run: backups\host-<timestamp>\.
+Guest backup before each Prep/Configure: C:\ProgramData\MasterLab\Backups\<timestamp>\.
+Guest result JSON reports the exact backup path. Host evidence: results\run-*.json.
+Code versions before edits: backups\code-* and backups\Master-*.ps1.
+Credentials: %LOCALAPPDATA%\MasterLab\DNS.credential.xml and IIS.credential.xml,
+encrypted with Windows DPAPI for the same Windows user on this machine.
+
+On RUN ALL failure, the tool restores the previous host VMnet1 address/DNS/routes.
+Guest changes are NOT automatically rolled back as a whole. Backups include guest
+network, firewall, DNS records/zone export, DHCP export, IIS applicationHost.config,
+LABWEB content and previous lab state. DNS zone exports are in the guest's
+C:\Windows\System32\dns folder. Guest role installation is not undone.
+
+For returning to a previous successful LAB configuration, use its Config values
+from results\run-*.json in MASTER and RUN ALL. This recreates the lab consistently.
+For restoring pre-existing services/data outside the lab, inspect the saved backup
+first; do not indiscriminately import entire firewall/DHCP/IIS backups.
+
+To restore only a saved host VMnet1 network configuration in elevated PowerShell:
+  . 'D:\codex t3\Host.ps1'
+  Restore-HostNetwork 'D:\codex t3\backups\host-<timestamp>'
+
+VMware DHCP must remain disabled on VMnet1. Its VMnet8 service is left running.
+Do not edit the VMX while the VM is powered on. No VM reset, deletion, disk change,
+or snapshot deletion is performed by this tool.

@@ -1,0 +1,73 @@
+MASTER LAB - REAL MACHINE RESULTS
+Date: 2026-10-01 (UTC+07)
+
+ENVIRONMENT CHECK PASS
+Windows 11 Pro local; D:\vmare\vmrun.exe -T ws list sees exactly:
+DNS/DHCP: C:\Users\Admin\Documents\Virtual Machines\Clone of Windows Server 2022-2\Clone of Windows Server 2022-2.vmx
+Display name: Clone of Windows Server 2022-2
+IIS: D:\win sv2\Windows Server 2022.vmx
+Display name: Windows Server 2022 90
+Both use VMnet1; Tools, guest Administrator credentials and guest admin checks PASS.
+VMware DHCP disabled on VMnet1; VMnet8 DHCP retained.
+
+HTTP + STATIC PASS (actual requests, independently tested)
+DNS: www.lab.local -> 10.10.10.3 via DNS VM 10.10.10.2
+Client: 10.10.10.4/24
+DIRECT IP TCP       PASS - Test-NetConnection 10.10.10.3 -Port 8080
+DIRECT IP HTTP      PASS - http://10.10.10.3:8080/ -> remote_ip 10.10.10.3; HTTP/1.1 200 OK; web1
+DIRECT IP Browser   PASS - actual tab URL http://10.10.10.3:8080/; web1 visibly rendered
+DOMAIN DNS          PASS - www.lab.local -> 10.10.10.3
+DOMAIN HTTP         PASS - http://www.lab.local:8080/ -> 10.10.10.3; HTTP/1.1 200 OK; web1
+DOMAIN Browser      PASS - actual tab URL http://www.lab.local:8080/; web1 visibly rendered
+Browser verification used the supported Codex In-app Browser.
+Direct-IP proof: results\direct-curl-verbose.txt and logs\direct-direct-status.json.
+The curl proof records connection to 10.10.10.3 and Host: 10.10.10.3:8080.
+IIS binding: protocol=http; bindingInformation=10.10.10.3:8080:; Host name empty; sslFlags=0.
+
+HTTPS + STATIC PASS (real TLS validation; no certificate bypass)
+DNS 172.16.20.2; IIS 172.16.20.10; client 172.16.20.20/24.
+Certificate SAN: DNS=secure.exam.local; IPAddress=172.16.20.10.
+https://172.16.20.10:8443/ = HTTP 200; expected web1 content.
+https://secure.exam.local:8443/ = HTTP 200; expected web1 content.
+Lab certificate was trusted and normal TLS validation passed for both URLs.
+
+DHCP PASS
+Windows DHCP server 192.168.50.2; scope 192.168.50.100-192.168.50.150/24.
+Host lease 192.168.50.100; DHCPServer=192.168.50.2; DNS option=192.168.50.2.
+web.exam.local -> 192.168.50.3.
+http://192.168.50.3:8081/ = HTTP 200; expected web1 content.
+http://web.exam.local:8081/ = HTTP 200; expected web1 content.
+The three-case live suite passed again after fixes; evidence in results\run-*.json.
+
+OFFLINE PASS
+Wi-Fi was actually disabled; no active default IPv4/IPv6 route remained.
+DNS, direct-IP HTTP and domain HTTP still passed through VMnet1.
+Wi-Fi restored successfully and confirmed Up.
+Evidence: logs\offline-status.json and logs\offline.log.
+
+PREP BOTH VMs PASS
+DNS/DHCP and IIS prep both completed successfully on the correct VMs.
+
+AUDIT
+Windows PowerShell syntax and invalid-input checks PASS.
+Duplicate/network/broadcast/out-of-subnet IP, bad mask, port and DHCP range rejected.
+Native vmrun quoting, credentials, host-to-guest and guest-to-host copies exercised.
+No plaintext guest password in project code or reports; credentials stored with DPAPI.
+Concurrent worker rejected with exit code 2; current log/status left unchanged.
+Current HTTP state: zero stale lab certificates and zero SSL bindings on IIS.
+Previous 192.168.50.0 DHCP scope is Inactive.
+Backup/rollback scope and paths: RECOVERY.txt.
+
+CURRENT LAB
+DNS=10.10.10.2; IIS=10.10.10.3; client=10.10.10.4/24.
+Website web1, C:\LABWEB, http://10.10.10.3:8080/ and http://www.lab.local:8080/.
+Wi-Fi Up; VMnet1 Up; both VMs running.
+
+GUI
+MASTER-LAB.cmd and GUI created. GUI Shown event verified: 11 fields, 4 buttons,
+RUN ALL initially disabled. Backend CHECK/PREP/RUN exercised on real host/VMs.
+UI tool does not list the elevated MASTER window; actual CHECK ENV -> RUN ALL
+button interaction has not been verified. Reopen MASTER to load the latest code.
+
+OVERALL: REQUIRED LIVE LAB TESTS PASS.
+NOT READY FOR UNQUALIFIED GUI SIGN-OFF: one end-to-end GUI button run remains unverified.

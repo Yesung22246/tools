@@ -1,0 +1,13 @@
+{
+  "DhcpStart": "192.168.50.100",
+  "Router": "",
+  "Fqdn": "web.exam.local",
+  "ClientMode": "DHCP",
+  "DnsIP": "192.168.50.2",
+  "Mask": "24",
+  "Protocol": "http",
+  "Port": 8081,
+  "IisIP": "192.168.50.3",
+  "ClientIP": "",
+  "DhcpEnd": "192.168.50.150"
+}
